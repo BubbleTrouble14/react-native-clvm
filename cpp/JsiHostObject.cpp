@@ -2,7 +2,7 @@
 // https://github.com/Shopify/react-native-skia/blob/main/package/cpp/jsi/JsiHostObject.cpp
 // Credits to William and Christian
 
-#include <JsiHostObject.h>
+#include "JsiHostObject.h"
 #include <functional>
 #include <vector>
 

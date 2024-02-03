@@ -94,18 +94,17 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/BubbleTrouble14/react-native-clvm.git", :tag => "#{s.version}" }
 
   s.source_files = [
-    "ios/**/*.{h,m,mm}",
-    "cpp/**/*.{h,cpp}",
+    "ios/**/*.{m,mm}",
+    "cpp/**/*.cpp",
     "clvm_cpp/src/*.cpp",
-    # "clvm_cpp/include/**/*.h"
   ]
 
-  # s.preserve_paths = [
-  #   "cpp/**/*.h",
-  #   "ios/**/*.h",
-  #   "clvm_cpp/include/clvm/*.h"
-  # ]
-  s.preserve_paths = "clvm_cpp/include/clvm/*.h"
+  # Any private headers that are not globally unique should be mentioned here.
+  s.preserve_paths = [
+    "cpp/**/*.h",
+    "ios/**/*.h",
+    "clvm_cpp/include/clvm/*.h"
+  ]
 
   Pod::UI.puts("[Clvm] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
   blsPath = File.join(nodeModules, "react-native-bls-signatures")
@@ -123,7 +122,7 @@ Pod::Spec.new do |s|
   if ENV['RCT_NEW_ARCH_ENABLED'] == '1' then
     s.compiler_flags = folly_compiler_flags + " -DRCT_NEW_ARCH_ENABLED=1"
     s.pod_target_xcconfig    = {
-        "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost\"",
+        "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp\" \"$(PODS_TARGET_SRCROOT)/clvm_cpp/include/clvm\" \"$(PODS_ROOT)/boost\"",
         "OTHER_CPLUSPLUSFLAGS" => "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
         "CLANG_CXX_LANGUAGE_STANDARD" => "c++17"
     }
@@ -136,8 +135,7 @@ Pod::Spec.new do |s|
     s.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'DEFINES_MODULE' => 'YES',
-      # "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
-      "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/clvm_cpp/include/clvm/\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
+      "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp\" \"$(PODS_TARGET_SRCROOT)/clvm_cpp/include/clvm\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
       "OTHER_CFLAGS" => "$(inherited)",
     }
 
