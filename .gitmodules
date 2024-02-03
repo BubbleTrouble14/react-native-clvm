@@ -1,6 +1,3 @@
-[submodule "clvm"]
-	path = clvm
-	url = https://github.com/Chia-Network/clvm.git
 [submodule "clvm_cpp"]
 	path = clvm_cpp
-	url = https://github.com/mattxlee/clvm_cpp.git
+	url = https://github.com/BubbleTrouble14/clvm_cpp
