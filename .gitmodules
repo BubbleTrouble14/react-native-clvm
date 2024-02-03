@@ -1,0 +1,3 @@
+[submodule "clvm"]
+	path = clvm
+	url = https://github.com/Chia-Network/clvm.git
