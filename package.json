@@ -89,7 +89,8 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-bls-signatures": "*"
   },
   "workspaces": [
     "example"
