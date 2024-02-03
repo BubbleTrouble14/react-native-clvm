@@ -97,7 +97,7 @@ Pod::Spec.new do |s|
     "ios/**/*.{h,m,mm}",
     "cpp/**/*.{h,cpp}",
     "clvm_cpp/src/*.cpp",
-    "clvm_cpp/include/**/*.h"
+    # "clvm_cpp/include/**/*.h"
   ]
 
   # s.preserve_paths = [
@@ -105,6 +105,7 @@ Pod::Spec.new do |s|
   #   "ios/**/*.h",
   #   "clvm_cpp/include/clvm/*.h"
   # ]
+  s.preserve_paths = "clvm_cpp/include/clvm/*.h"
 
   Pod::UI.puts("[Clvm] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
   blsPath = File.join(nodeModules, "react-native-bls-signatures")
@@ -135,8 +136,9 @@ Pod::Spec.new do |s|
     s.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'DEFINES_MODULE' => 'YES',
-      "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
-      "OTHER_CFLAGS" => "$(inherited)"
+      # "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
+      "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/clvm_cpp/include/clvm/\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
+      "OTHER_CFLAGS" => "$(inherited)",
     }
 
     s.dependency "React-callinvoker"
