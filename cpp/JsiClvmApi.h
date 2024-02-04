@@ -6,6 +6,7 @@
 
 #include "JsiHostObject.h"
 #include "TypedArray.h"
+#include "RNClvmLog.h"
 
 #include "assemble.h"
 #include "int.h"
@@ -13,10 +14,10 @@
 #include "sexp_prog.h"
 #include "types.h"
 #include "clvm_utils.h"
-
 #include "bech32.h"
 
-#include "RNClvmLog.h"
+#include "JsiProgram.h"
+#include "JsiSExp.h"
 
 namespace RNClvm
 {
@@ -30,6 +31,8 @@ namespace RNClvm
 
     JsiClvmApi(jsi::Runtime &runtime) : JsiHostObject()
     {
+      installReadonlyProperty("Program", std::make_shared<RNClvm::JsiProgram>());
+      // installReadonlyProperty("SExp", std::make_shared<RNClvm::JsiSExp>());
     }
 
     int calculate_number(std::string s)
@@ -42,28 +45,13 @@ namespace RNClvm
       return chia::ToInt(r).ToInt();
     }
 
-    JSI_HOST_FUNCTION(calculateNumber)
+    JSI_HOST_FUNCTION(assemble)
     {
-      if (count != 1)
-      {
-        throw jsi::JSError(runtime, "calculateNumber(..) expects one argument (string)!");
-      }
+      auto str = arguments[0].asString(runtime).utf8(runtime);
+      auto f = chia::Assemble(str);
+      return JsiSExp::toValue(runtime, f);
+    }
 
-      if (!arguments[0].isString())
-      {
-        throw jsi::JSError(runtime, "Expected string argument!");
-      }
-
-      // Get the string argument
-      std::string s = arguments[0].asString(runtime).utf8(runtime);
-
-      // Call the calculate_number function and get the result
-      int result = calculate_number(s);
-
-      // Return the result as a JSI Value
-      return jsi::Value(result);
-    };
-
-    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiClvmApi, calculateNumber))
+    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiClvmApi, assemble))
   };
 } // namespace RNClvm
