@@ -36,15 +36,15 @@ namespace RNClvm
       // installReadonlyProperty("SExp", std::make_shared<RNClvm::JsiSExp>());
     }
 
-    int calculate_number(std::string s)
-    {
-      auto f = chia::Assemble(s);
-      chia::Program prog(f);
-      chia::CLVMObjectPtr r;
-      std::tie(std::ignore, r) = prog.Run();
-      // EXPECT_EQ(r->GetNodeType(), chia::NodeType::Atom_Int);
-      return chia::ToInt(r).ToInt();
-    }
+    // int calculate_number(std::string s)
+    // {
+    //   auto f = chia::Assemble(s);
+    //   chia::Program prog(f);
+    //   chia::CLVMObjectPtr r;
+    //   std::tie(std::ignore, r) = prog.Run();
+    //   // EXPECT_EQ(r->GetNodeType(), chia::NodeType::Atom_Int);
+    //   return chia::ToInt(r).ToInt();
+    // }
 
     JSI_HOST_FUNCTION(assemble)
     {
@@ -54,6 +54,12 @@ namespace RNClvm
       // return JsiSExp::toValue(runtime, f);
     }
 
-    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiClvmApi, assemble))
+    JSI_HOST_FUNCTION(toInt)
+    {
+      auto clvmObjPtr = JsiClvmObject::fromValue(runtime, arguments[0]); // You'll need to implement unwrapClvmObject.
+      return jsi::Value(runtime, static_cast<double>(chia::ToInt(clvmObjPtr).ToInt()));
+    }
+
+    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiClvmApi, assemble), JSI_EXPORT_FUNC(JsiClvmApi, toInt))
   };
 } // namespace RNClvm

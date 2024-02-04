@@ -5,9 +5,9 @@ import { Clvm, Program } from 'react-native-clvm';
 
 export default function App() {
   React.useEffect(() => {
-    const program = Program.fromAssemble('(+ (f 1) (q . 5))');
-    const r = program.run(Clvm.assemble('(+ (f 1) (q . 5))'));
-    console.log(r.value);
+    const program = Program.fromAssemble('(* (f 1) (f 1))');
+    const r = program.run(Clvm.assemble('(10)'));
+    console.log(Clvm.toInt(r.value));
     // const bytes = fromHex('ff1dff02ffff1effff0bff02ff05808080');
     // const hex = toHex(bytes);
     // console.log(hex);

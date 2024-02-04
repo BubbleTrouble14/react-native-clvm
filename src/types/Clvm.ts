@@ -6,4 +6,5 @@ export interface Clvm {
   Program: IProgram;
   // SExp: ISExp;
   assemble: (sexp: string) => ClvmObject;
+  toInt(val: ClvmObject): number;
 }

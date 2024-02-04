@@ -13,16 +13,18 @@ namespace RNClvm
   public:
     static jsi::Value createJsiClvmObject(jsi::Runtime &runtime, chia::CLVMObjectPtr clvmObj)
     {
-      switch (clvmObj->GetNodeType())
-      {
-      case chia::NodeType::Atom_Bytes:
-      case chia::NodeType::Atom_Str:
-      case chia::NodeType::Atom_Int:
-      case chia::NodeType::Atom_G1Element:
-        return JsiClvmObjectAtom::toValue(runtime, clvmObj);
-      default:
-        return JsiClvmObject::toValue(runtime, clvmObj);
-      }
+      return JsiClvmObject::toValue(runtime, clvmObj);
+
+      // switch (clvmObj->GetNodeType())
+      // {
+      // case chia::NodeType::Atom_Bytes:
+      // case chia::NodeType::Atom_Str:
+      // case chia::NodeType::Atom_Int:
+      // case chia::NodeType::Atom_G1Element:
+      //   return JsiClvmObjectAtom::toValue(runtime, clvmObj);
+      // default:
+      //   return JsiClvmObject::toValue(runtime, clvmObj);
+      // }
     }
   };
 

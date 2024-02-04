@@ -2,7 +2,7 @@ import { fromHex } from 'react-native-bls-signatures';
 import type { ClvmObject } from './ClvmObject';
 
 export interface ProgramOutput {
-  value: Program;
+  value: ClvmObject;
   cost: bigint;
 }
 
