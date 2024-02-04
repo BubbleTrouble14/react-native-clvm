@@ -1,15 +1,22 @@
 import { fromHex } from 'react-native-bls-signatures';
-import type { SExp } from './SExp';
+import type { ClvmObject } from './ClvmObject';
+
+export interface ProgramOutput {
+  value: Program;
+  cost: bigint;
+}
 
 export interface IBaseProgram {
   getTreeHash(): Uint8Array;
-  getSExp(): SExp;
+  getSExp(): ClvmObject;
+  run(args: ClvmObject): ProgramOutput;
 }
 
-export type JsiProgram = Pick<IBaseProgram, 'getTreeHash' | 'getSExp'>;
+export type JsiProgram = Pick<IBaseProgram, 'getTreeHash' | 'getSExp' | 'run'>;
 
 export interface IProgram extends IBaseProgram {
   fromBytes(bytes: Uint8Array): Program;
+  fromAssemble(str: string): Program;
 }
 
 export class Program implements IBaseProgram {
@@ -33,9 +40,14 @@ export class Program implements IBaseProgram {
     return func.bind(this)();
   }
 
-  getSExp(): SExp {
+  getSExp(): ClvmObject {
     const func = this.getFunctionFromCache('getSExp');
     return func.bind(this)();
+  }
+
+  run(args: ClvmObject): ProgramOutput {
+    const func = this.getFunctionFromCache('run');
+    return func.bind(this)(args);
   }
 
   static fromBytes(bytes: Uint8Array): Program {
@@ -44,5 +56,9 @@ export class Program implements IBaseProgram {
 
   static fromHex(hex: string): Program {
     return global.ClvmApi.Program.fromBytes(fromHex(hex));
+  }
+
+  static fromAssemble(str: string): Program {
+    return global.ClvmApi.Program.fromAssemble(str);
   }
 }

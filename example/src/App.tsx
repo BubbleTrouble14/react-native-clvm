@@ -2,17 +2,19 @@ import * as React from 'react';
 
 import { Root } from './navigators/Root';
 import { Clvm, Program } from 'react-native-clvm';
-import { fromHex, toHex } from 'react-native-bls-signatures';
 
 export default function App() {
   React.useEffect(() => {
-    const bytes = fromHex('ff1dff02ffff1effff0bff02ff05808080');
-    const hex = toHex(bytes);
-    console.log(hex);
-    const program = Program.fromHex('ff1dff02ffff1effff0bff02ff05808080');
-    const sexp = program.getSExp();
-    const test = Clvm.assemble('(f (f (r 1)))');
-    console.log(sexp.getNodeType());
+    const program = Program.fromAssemble('(+ (f 1) (q . 5))');
+    const r = program.run(Clvm.assemble('(+ (f 1) (q . 5))'));
+    console.log(r.value);
+    // const bytes = fromHex('ff1dff02ffff1effff0bff02ff05808080');
+    // const hex = toHex(bytes);
+    // console.log(hex);
+    // const program = Program.fromHex('ff1dff02ffff1effff0bff02ff05808080');
+    // const sexp = program.getSExp();
+    // const test = Clvm.assemble('((70 80) ((91 92 93 94 95) 100) (110 120))');
+    // console.log(test.getNodeType());
   }, []);
 
   return <Root />;

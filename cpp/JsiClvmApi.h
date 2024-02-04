@@ -17,7 +17,8 @@
 #include "bech32.h"
 
 #include "JsiProgram.h"
-#include "JsiSExp.h"
+#include "JsiClvmObjectFactory.h"
+// #include "JsiSExp.h"
 
 namespace RNClvm
 {
@@ -49,7 +50,8 @@ namespace RNClvm
     {
       auto str = arguments[0].asString(runtime).utf8(runtime);
       auto f = chia::Assemble(str);
-      return JsiSExp::toValue(runtime, f);
+      return JsiClvmObjectFactory::createJsiClvmObject(runtime, f);
+      // return JsiSExp::toValue(runtime, f);
     }
 
     JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiClvmApi, assemble))

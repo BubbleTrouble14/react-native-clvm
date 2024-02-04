@@ -10,8 +10,9 @@
 #include <jsi/jsi.h>
 #include "RNClvmLog.h"
 
-#include "JsiSExp.h"
-#include "JsiSExp1.h"
+// #include "JsiSExp.h"
+// #include "JsiSExp1.h"
+#include "JsiClvmObjectFactory.h"
 
 #include "sexp_prog.h"
 #include "types.h"
@@ -46,6 +47,19 @@ namespace RNClvm
       return JsiProgram::toValue(runtime, prog);
     };
 
+    // ----------fromAssemble----------//
+    JSI_HOST_FUNCTION(fromAssemble)
+    {
+      // Get the string from the first argument
+      auto str = arguments[0].asString(runtime).utf8(runtime);
+
+      // Import the program using the provided assembly code string
+      auto prog = chia::Program::ImportFromAssemble(str);
+
+      // Wrap the program in a JSI object and return it
+      return JsiProgram::toValue(runtime, prog);
+    };
+
     // ----------getTreeHash----------//
     JSI_HOST_FUNCTION(getTreeHash)
     {
@@ -60,10 +74,30 @@ namespace RNClvm
     // ----------getTreeHash----------//
     JSI_HOST_FUNCTION(getSExp)
     {
-      return JsiSExp1::toValue(runtime, getObject()->GetSExp());
+      return JsiClvmObjectFactory::createJsiClvmObject(runtime, getObject()->GetSExp());
+      // return JsiSExp::toValue(runtime, getObject()->GetSExp());
     };
 
-    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiProgram, fromBytes), JSI_EXPORT_FUNC(JsiProgram, getTreeHash), JSI_EXPORT_FUNC(JsiProgram, getSExp))
+    // ----------getTreeHash----------//
+    JSI_HOST_FUNCTION(run)
+    {
+      auto clvmObjPtr = JsiClvmObject::fromValue(runtime, arguments[0]); // You'll need to implement unwrapClvmObject.
+
+      auto [cost, result] = getObject()->Run(clvmObjPtr);
+
+      // Create a JS object to hold both the cost and the result.
+      auto resultObj = jsi::Object(runtime);
+
+      // Wrap the cost.
+      resultObj.setProperty(runtime, "cost", static_cast<double>(cost)); // JSI uses double for numbers.
+
+      auto clvmObj = JsiClvmObjectFactory::createJsiClvmObject(runtime, result);
+      resultObj.setProperty(runtime, "value", clvmObj);
+
+      return resultObj;
+    }
+
+    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiProgram, fromBytes), JSI_EXPORT_FUNC(JsiProgram, getTreeHash), JSI_EXPORT_FUNC(JsiProgram, getSExp), JSI_EXPORT_FUNC(JsiProgram, run), JSI_EXPORT_FUNC(JsiProgram, fromAssemble))
   };
 
 } // namespace RNClvm
