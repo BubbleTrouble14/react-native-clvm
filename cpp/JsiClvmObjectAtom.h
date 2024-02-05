@@ -1,17 +1,15 @@
 #pragma once
 
-#include "JsiClvmObjectWrapper.h" // Ensure this path is correct
+#include "JsiClvmObject.h" // Ensure this path is correct
 
 namespace RNClvm
 {
   namespace jsi = facebook::jsi;
 
-  class JsiClvmObjectAtom : public JsiClvmObjectWrapper<chia::CLVMObject_Atom>
+  class JsiClvmObjectAtom : public JsiClvmObject<chia::CLVMObject_Atom>
   {
   public:
-    // You're inheriting a constructor, but the base is a template, so you should directly call its constructor
-    JsiClvmObjectAtom(chia::CLVMObjectPtr clvmObjPtr)
-        : JsiClvmObjectWrapper<chia::CLVMObject_Atom>(std::move(clvmObjPtr)) {}
+    using JsiClvmObject::JsiClvmObject; // Inherit constructors
 
     JSI_HOST_FUNCTION(asString)
     {
@@ -27,7 +25,12 @@ namespace RNClvm
       return jsi::Value(runtime, static_cast<double>(atomObj->AsInt().ToInt()));
     }
 
-    static jsi::Value toValue(jsi::Runtime &runtime, chia::CLVMObjectPtr clvmObjPtr)
+    // static jsi::Value toValue(jsi::Runtime &runtime, chia::CLVMObject_Atom clvmObjPtr)
+    // {
+    //   auto wrapper = std::make_shared<JsiClvmObjectAtom>(std::move(clvmObjPtr));
+    //   return jsi::Object::createFromHostObject(runtime, wrapper);
+    // }
+    static jsi::Value toValue(jsi::Runtime &runtime, std::shared_ptr<chia::CLVMObject_Atom> clvmObjPtr)
     {
       auto wrapper = std::make_shared<JsiClvmObjectAtom>(std::move(clvmObjPtr));
       return jsi::Object::createFromHostObject(runtime, wrapper);

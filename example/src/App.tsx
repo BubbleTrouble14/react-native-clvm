@@ -6,8 +6,10 @@ import { Clvm, Program } from 'react-native-clvm';
 export default function App() {
   React.useEffect(() => {
     const program = Program.fromAssemble('(* (f 1) (f 1))');
-    const r = program.run(Clvm.assemble('(10)'));
-    console.log(Clvm.toInt(r.value));
+    const x = Clvm.assemble('(10)');
+    console.log(program.run(x));
+    // const r = program.run(Clvm.assemble('(10)'));
+    // console.log(program, Clvm.toInt(r.value));
     // const bytes = fromHex('ff1dff02ffff1effff0bff02ff05808080');
     // const hex = toHex(bytes);
     // console.log(hex);

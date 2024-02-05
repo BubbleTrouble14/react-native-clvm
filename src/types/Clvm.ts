@@ -7,4 +7,5 @@ export interface Clvm {
   // SExp: ISExp;
   assemble: (sexp: string) => ClvmObject;
   toInt(val: ClvmObject): number;
+  sExpFromStream: (stream: Uint8Array) => ClvmObject;
 }

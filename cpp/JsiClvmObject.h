@@ -1,22 +1,29 @@
-// JsiClvmObjectAtom.h
 #pragma once
 
-#include "JsiClvmObjectWrapper.h" // Ensure this path is correct
+#include <memory>
+#include <string>
+#include <utility>
+
+#include "JsiClvmHostObjects.h"
+#include "JsiHostObject.h"
+#include "TypedArray.h"
+#include <jsi/jsi.h>
+#include "RNClvmLog.h"
 
 namespace RNClvm
 {
   namespace jsi = facebook::jsi;
 
-  class JsiClvmObject : public JsiClvmObjectWrapper<chia::CLVMObject>
+  template <typename T = chia::CLVMObject>
+  class JsiClvmObject : public JsiClvmWrappingHostObject<chia::CLVMObjectPtr>
   {
   public:
-    // You're inheriting a constructor, but the base is a template, so you should directly call its constructor
     JsiClvmObject(chia::CLVMObjectPtr clvmObjPtr)
-        : JsiClvmObjectWrapper<chia::CLVMObject>(std::move(clvmObjPtr)) {}
+        : JsiClvmWrappingHostObject<chia::CLVMObjectPtr>(std::move(clvmObjPtr)) {}
 
-    static jsi::Value toValue(jsi::Runtime &runtime, chia::CLVMObjectPtr clvmObjPtr)
+    static jsi::Value toValue(jsi::Runtime &runtime, std::shared_ptr<T> clvmObjPtr)
     {
-      auto wrapper = std::make_shared<JsiClvmObject>(std::move(clvmObjPtr));
+      auto wrapper = std::make_shared<JsiClvmObject>(clvmObjPtr);
       return jsi::Object::createFromHostObject(runtime, wrapper);
     }
 
@@ -35,6 +42,31 @@ namespace RNClvm
       }
       return clvmObjPtr;
     }
-  };
 
-} // namespace RNClvm
+    // Get the underlying object, statically casted to the template type
+    std::shared_ptr<T> getTypedObject() const
+    {
+      return std::static_pointer_cast<T>(getObject());
+    }
+
+    JSI_HOST_FUNCTION(getNodeType)
+    {
+      auto object = this->getObject();
+      return jsi::String::createFromUtf8(runtime, chia::NodeTypeToString(object->GetNodeType()));
+    }
+
+    JSI_HOST_FUNCTION(isFalse)
+    {
+      auto typedObject = getTypedObject();
+      return jsi::Value(typedObject->IsFalse());
+    }
+
+    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiClvmObject, getNodeType), JSI_EXPORT_FUNC(JsiClvmObject, isFalse));
+
+  protected:
+    void releaseResources() override
+    {
+      this->setObject(nullptr);
+    }
+  };
+}

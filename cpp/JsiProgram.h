@@ -13,6 +13,7 @@
 // #include "JsiSExp.h"
 // #include "JsiSExp1.h"
 #include "JsiClvmObjectFactory.h"
+#include "JsiClvmObject.h"
 
 #include "sexp_prog.h"
 #include "types.h"
@@ -78,10 +79,11 @@ namespace RNClvm
       // return JsiSExp::toValue(runtime, getObject()->GetSExp());
     };
 
-    // ----------getTreeHash----------//
+    // ----------run----------//
     JSI_HOST_FUNCTION(run)
     {
-      auto clvmObjPtr = JsiClvmObject::fromValue(runtime, arguments[0]); // You'll need to implement unwrapClvmObject.
+      auto clvmObjPtr = JsiClvmObjectFactory::fromJsiValue(runtime, arguments[0]);
+      // auto clvmObjPtr = JsiClvmObject<>::fromValue(runtime, arguments[0]); // You'll need to implement unwrapClvmObject.
 
       auto [cost, result] = getObject()->Run(clvmObjPtr);
 
