@@ -70,7 +70,7 @@ def safeExtGet(prop, fallback) {
 }
 
 def hasBlsSignatures = !safeExtGet("VisionCamera_disableFrameProcessors", false) && findProject(":react-native-bls-signatures") != null
-logger.warn("[react-native-clvm] ${hasBlsSignatures ? "found" : "not found"}")
+logger.warn("[CLVM] react-native-clvm ${hasBlsSignatures ? "found" : "not found"} react-native-bls-signatures")
 
 task prepareHeaders(type: Copy) {
   from fileTree('../cpp').filter { it.isFile() }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "JsiClvmObject.h" // Ensure this path is correct
-#include "JsiClvmObjectFactory.h"
+// #include "JsiClvmObjectFactory.h"
 
 namespace RNClvm
 {
@@ -12,21 +12,21 @@ namespace RNClvm
   public:
     using JsiClvmObject::JsiClvmObject; // Inherit constructors
 
-    // Method to get the first element of the pair
-    JSI_HOST_FUNCTION(getFirstNode)
-    {
-      auto pairObj = getTypedObject(); // This is already of type CLVMObject_Pair
-      auto first = pairObj->GetFirstNode();
-      return JsiClvmObjectFactory::createJsiClvmObject(runtime, first);
-    }
+    // // Method to get the first element of the pair
+    // JSI_HOST_FUNCTION(getFirstNode)
+    // {
+    //   auto pairObj = getTypedObject(); // This is already of type CLVMObject_Pair
+    //   auto first = pairObj->GetFirstNode();
+    //   return JsiClvmObjectFactory::createJsiClvmObject(runtime, first);
+    // }
 
-    // Method to get the rest element of the pair
-    JSI_HOST_FUNCTION(getRestNode)
-    {
-      auto pairObj = getTypedObject(); // This is already of type CLVMObject_Pair
-      auto rest = pairObj->GetRestNode();
-      return JsiClvmObjectFactory::createJsiClvmObject(runtime, rest);
-    }
+    // // Method to get the rest element of the pair
+    // JSI_HOST_FUNCTION(getRestNode)
+    // {
+    //   auto pairObj = getTypedObject(); // This is already of type CLVMObject_Pair
+    //   auto rest = pairObj->GetRestNode();
+    //   return JsiClvmObjectFactory::createJsiClvmObject(runtime, rest);
+    // }
 
     // Method to get the rest element of the pair
     JSI_HOST_FUNCTION(setRestNode)
@@ -47,7 +47,7 @@ namespace RNClvm
     JSI_EXPORT_FUNCTIONS(
         // JSI_EXPORT_FUNC(JsiClvmObjectPair, getFirstNode),
         // JSI_EXPORT_FUNC(JsiClvmObjectPair, getRestNode),
-        JSI_EXPORT_FUNC(JsiClvmObjectPair, setRestNode), JSI_EXPORT_FUNC(JsiClvmObjectPair, getNodeType));
+        JSI_EXPORT_FUNC(JsiClvmObjectPair, setRestNode));
   };
 
 } // namespace RNClvm

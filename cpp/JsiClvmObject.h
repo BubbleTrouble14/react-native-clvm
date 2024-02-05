@@ -61,7 +61,13 @@ namespace RNClvm
       return jsi::Value(typedObject->IsFalse());
     }
 
-    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiClvmObject, getNodeType), JSI_EXPORT_FUNC(JsiClvmObject, isFalse));
+    JSI_HOST_FUNCTION(equals)
+    {
+      auto typedObject = getTypedObject();
+      return jsi::Value(typedObject->Eq());
+    }
+
+    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiClvmObject, getNodeType), JSI_EXPORT_FUNC(JsiClvmObject, isFalse), JSI_EXPORT_FUNC(JsiClvmObject, equals));
 
   protected:
     void releaseResources() override
