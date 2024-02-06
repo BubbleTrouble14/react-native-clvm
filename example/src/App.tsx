@@ -26,8 +26,21 @@ export default function App() {
     console.log(iter.nextStr());
     console.log(iter.nextStr());
     console.log(iter.hasNext());
+    const iter1 = r.value.toIter();
+    console.log(iter1.nextStr());
+    console.log(iter1.nextStr());
+    console.log(iter1.nextStr());
     // console.log(iter);
     // console.log(r.value.first().toString());
+    const prog1 = Program.fromAssemble('(f (f (r 1)))');
+    const r1 = prog1.run(
+      Clvm.assemble('((70 80) ((91 92 93 94 95) 100) (110 120))')
+    );
+    const iter2 = r1.value.toIter();
+    console.log(iter2.nextInt());
+    console.log(iter2.nextInt());
+    console.log(iter2.nextInt());
+    console.log(iter2.nextInt());
   }, []);
 
   return <Root />;

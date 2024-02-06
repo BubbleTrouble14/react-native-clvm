@@ -70,6 +70,12 @@ namespace RNClvm
       return jsi::Value(chia::IsPair(object));
     }
 
+    JSI_HOST_FUNCTION(isNull)
+    {
+      auto object = this->getObject();
+      return jsi::Value(chia::IsNull(object));
+    }
+
     JSI_HOST_FUNCTION(toBytes)
     {
       auto object = this->getObject();
@@ -129,6 +135,7 @@ namespace RNClvm
         JSI_EXPORT_FUNC(JsiSExp, equals),
         JSI_EXPORT_FUNC(JsiSExp, isAtom),
         JSI_EXPORT_FUNC(JsiSExp, isPair),
+        JSI_EXPORT_FUNC(JsiSExp, isNull),
         JSI_EXPORT_FUNC(JsiSExp, toBytes),
         JSI_EXPORT_FUNC(JsiSExp, toInt),
         JSI_EXPORT_FUNC(JsiSExp, toString),

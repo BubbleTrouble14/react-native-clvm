@@ -37,10 +37,11 @@ namespace RNClvm
       {
         int num_bytes;
         auto val = iter.NextInt(&num_bytes);
-        auto resultObj = jsi::Object(runtime);
-        resultObj.setProperty(runtime, "value", jsi::Value(static_cast<double>(val.ToInt())));
-        resultObj.setProperty(runtime, "numBytes", jsi::Value(static_cast<double>(num_bytes)));
-        return resultObj;
+        return jsi::Value(static_cast<double>(val.ToInt()));
+        // auto resultObj = jsi::Object(runtime);
+        // resultObj.setProperty(runtime, "value", jsi::Value(static_cast<double>(val.ToInt())));
+        // resultObj.setProperty(runtime, "numBytes", jsi::Value(static_cast<double>(num_bytes)));
+        // return resultObj;
       }
       else
       {
@@ -49,7 +50,7 @@ namespace RNClvm
     }
 
     // Mimics ArgsIter::NextStr
-    JSI_HOST_FUNCTION(nextStr)
+    JSI_HOST_FUNCTION(nextString)
     {
       if (!iter.IsEof())
       {
@@ -103,7 +104,7 @@ namespace RNClvm
         JSI_EXPORT_FUNC(JsiClvmIterator, next),
         JSI_EXPORT_FUNC(JsiClvmIterator, hasNext),
         JSI_EXPORT_FUNC(JsiClvmIterator, nextInt),
-        JSI_EXPORT_FUNC(JsiClvmIterator, nextStr),
+        JSI_EXPORT_FUNC(JsiClvmIterator, nextString),
         JSI_EXPORT_FUNC(JsiClvmIterator, nextBytes));
   };
 

@@ -47,6 +47,14 @@ namespace RNClvm
       return JsiProgram::toValue(runtime, prog);
     };
 
+    // ----------fromHex----------//
+    JSI_HOST_FUNCTION(fromHex)
+    {
+      auto hex = arguments[0].asString(runtime).utf8(runtime);
+
+      return JsiProgram::toValue(runtime, chia::Program::ImportFromHex(hex));
+    };
+
     // ----------fromAssemble----------//
     JSI_HOST_FUNCTION(fromAssemble)
     {
@@ -77,6 +85,16 @@ namespace RNClvm
       return JsiSExp::toValue(runtime, getObject()->GetSExp());
     };
 
+    // ----------serialize----------//
+    JSI_HOST_FUNCTION(serialize)
+    {
+      auto bytes = getObject()->Serialize();
+      auto newTypedArray = TypedArray<TypedArrayKind::Uint8Array>(runtime, bytes.size());
+      auto newBuffer = newTypedArray.getBuffer(runtime);
+      std::memcpy(newBuffer.data(runtime), bytes.data(), bytes.size());
+      return newTypedArray;
+    };
+
     // ----------run----------//
     JSI_HOST_FUNCTION(run)
     {
@@ -97,7 +115,24 @@ namespace RNClvm
       return resultObj;
     }
 
-    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiProgram, fromBytes), JSI_EXPORT_FUNC(JsiProgram, getTreeHash), JSI_EXPORT_FUNC(JsiProgram, getSExp), JSI_EXPORT_FUNC(JsiProgram, run), JSI_EXPORT_FUNC(JsiProgram, fromAssemble))
+    // ----------curry----------//
+    JSI_HOST_FUNCTION(curry)
+    {
+      auto clvmObjPtr = JsiSExp::fromValue(runtime, arguments[0]);
+
+      auto prog = getObject()->Curry(clvmObjPtr);
+
+      return JsiProgram::toValue(runtime, prog);
+    }
+
+    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiProgram, fromBytes),
+                         JSI_EXPORT_FUNC(JsiProgram, fromHex),
+                         JSI_EXPORT_FUNC(JsiProgram, fromAssemble),
+                         JSI_EXPORT_FUNC(JsiProgram, getTreeHash),
+                         JSI_EXPORT_FUNC(JsiProgram, getSExp),
+                         JSI_EXPORT_FUNC(JsiProgram, serialize),
+                         JSI_EXPORT_FUNC(JsiProgram, run),
+                         JSI_EXPORT_FUNC(JsiProgram, curry))
   };
 
 } // namespace RNClvm

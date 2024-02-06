@@ -39,7 +39,8 @@ type Pair = {
 export interface ClvmIterator {
   next(): ClvmObject | undefined;
   hasNext(): boolean;
-  nextInt(): { value: number; numBytes: number } | undefined;
+  nextInt(): number | undefined;
+  // nextInt(): { value: number; numBytes: number } | undefined;
   nextStr(): string | undefined;
   nextBytes(): Uint8Array | undefined;
 }
