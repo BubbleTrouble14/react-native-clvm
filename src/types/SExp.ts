@@ -41,7 +41,7 @@ export interface ClvmIterator {
   hasNext(): boolean;
   nextInt(): number | undefined;
   // nextInt(): { value: number; numBytes: number } | undefined;
-  nextStr(): string | undefined;
+  nextString(): string | undefined;
   nextBytes(): Uint8Array | undefined;
 }
 
