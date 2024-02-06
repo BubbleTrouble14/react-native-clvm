@@ -1,3 +1,5 @@
+import type { ClvmObject } from './ClvmObject';
+
 enum NodeType {
   None = 'None',
   Atom_Bytes = 'Atom_Bytes',
@@ -34,6 +36,14 @@ type Pair = {
 //   setResNode(node: ClvmObject): void;
 // }
 
+export interface ClvmIterator {
+  next(): ClvmObject | undefined;
+  hasNext(): boolean;
+  nextInt(): { value: number; numBytes: number } | undefined;
+  nextStr(): string | undefined;
+  nextBytes(): Uint8Array | undefined;
+}
+
 export interface SExp {
   getNodeType(): NodeType;
   isFalse(): boolean;
@@ -47,4 +57,5 @@ export interface SExp {
   first(): SExp;
   rest(): SExp;
   toPair(): Pair;
+  toIter(): ClvmIterator;
 }

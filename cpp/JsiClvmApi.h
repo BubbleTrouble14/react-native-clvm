@@ -49,8 +49,8 @@ namespace RNClvm
     JSI_HOST_FUNCTION(assemble)
     {
       auto str = arguments[0].asString(runtime).utf8(runtime);
-      RNClvmLogger::logToJavascriptConsole(runtime, str);
-      RNClvmLogger::logToJavascriptConsole(runtime, "(\"this\" \"is the\" \"environement\")");
+      // RNClvmLogger::logToJavascriptConsole(runtime, str);
+      // RNClvmLogger::logToJavascriptConsole(runtime, "(\"this\" \"is the\" \"environement\")");
       auto f = chia::Assemble(str);
       return JsiSExp::toValue(runtime, f);
       // return JsiSExp::toValue(runtime, f);

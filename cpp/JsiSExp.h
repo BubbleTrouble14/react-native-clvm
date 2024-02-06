@@ -9,7 +9,7 @@
 #include "TypedArray.h"
 #include <jsi/jsi.h>
 #include "RNClvmLog.h"
-
+#include "JsiClvmIterator.h"
 namespace RNClvm
 {
   namespace jsi = facebook::jsi;
@@ -116,6 +116,13 @@ namespace RNClvm
       return resultObj;
     }
 
+    JSI_HOST_FUNCTION(toIter)
+    {
+      auto object = getObject();
+      auto iterator = std::make_shared<JsiClvmIterator>(object);
+      return jsi::Object::createFromHostObject(runtime, iterator);
+    }
+
     JSI_EXPORT_FUNCTIONS(
         JSI_EXPORT_FUNC(JsiSExp, getNodeType),
         JSI_EXPORT_FUNC(JsiSExp, isFalse),
@@ -127,7 +134,8 @@ namespace RNClvm
         JSI_EXPORT_FUNC(JsiSExp, toString),
         JSI_EXPORT_FUNC(JsiSExp, first),
         JSI_EXPORT_FUNC(JsiSExp, rest),
-        JSI_EXPORT_FUNC(JsiSExp, toPair));
+        JSI_EXPORT_FUNC(JsiSExp, toPair),
+        JSI_EXPORT_FUNC(JsiSExp, toIter));
 
   protected:
     void releaseResources() override

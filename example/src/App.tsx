@@ -21,7 +21,13 @@ export default function App() {
     // console.log(test.getNodeType());
     const prog = Program.fromAssemble('1');
     const r = prog.run(Clvm.assemble('("this" "is the" "environment")'));
-    console.log(r.value.first().toString());
+    const iter = r.value.toIter();
+    console.log(iter.nextStr());
+    console.log(iter.nextStr());
+    console.log(iter.nextStr());
+    console.log(iter.hasNext());
+    // console.log(iter);
+    // console.log(r.value.first().toString());
   }, []);
 
   return <Root />;
