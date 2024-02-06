@@ -10,96 +10,130 @@
 #include <jsi/jsi.h>
 #include "RNClvmLog.h"
 
-// #include "JsiSExp.h"
-// #include "JsiSExp1.h"
-#include "JsiClvmObjectFactory.h"
-#include "JsiClvmObject.h"
-
-#include "sexp_prog.h"
-#include "types.h"
-
 namespace RNClvm
 {
-
   namespace jsi = facebook::jsi;
 
-  class JsiSExp : public JsiClvmWrappingSharedPtrHostObject<chia::SExp, JsiSExp>
+  class JsiSExp : public JsiClvmWrappingHostObject<chia::CLVMObjectPtr>
   {
   public:
-    // For static methods we set a nullptr
-    JsiSExp() : JsiClvmWrappingSharedPtrHostObject<chia::SExp, JsiSExp>(nullptr) {}
+    JsiSExp(chia::CLVMObjectPtr object)
+        : JsiClvmWrappingHostObject<chia::CLVMObjectPtr>(std::move(object)) {}
 
-    JsiSExp(std::shared_ptr<chia::SExp> sExp)
-        : JsiClvmWrappingSharedPtrHostObject<chia::SExp, JsiSExp>(std::move(sExp)) {}
-
-    // ----------fromBytes----------//
-    JSI_HOST_FUNCTION(fromBytes)
+    // Factory method to create a JSI object from a CLVMObjectPtr
+    static jsi::Value toValue(jsi::Runtime &runtime, chia::CLVMObjectPtr clvmObjPtr)
     {
-      auto object = arguments[0].asObject(runtime);
-      if (!isTypedArray(runtime, object))
+      auto wrapper = std::make_shared<JsiSExp>(std::move(clvmObjPtr));
+      return jsi::Object::createFromHostObject(runtime, wrapper);
+    }
+
+    // Method to convert a JSI value back to a CLVMObjectPtr
+    static chia::CLVMObjectPtr fromValue(jsi::Runtime &runtime, const jsi::Value &value)
+    {
+      auto object = value.asObject(runtime);
+      if (!object.isHostObject<JsiSExp>(runtime))
       {
-        throw jsi::JSError(runtime, "The 'fromBytes' argument must be an object, but it is not of type Uint8Array.");
+        throw jsi::JSError(runtime, "Expected a host object of the correct type.");
       }
+      auto hostObject = object.asHostObject<JsiSExp>(runtime);
+      return hostObject->getObject();
+    }
 
-      auto typedArray = getTypedArray(runtime, object);
-
-      auto prog = chia::SExp::ImportFromBytes(typedArray.toVector(runtime));
-
-      return JsiSExp::toValue(runtime, prog);
-    };
-
-    // ----------fromAssemble----------//
-    JSI_HOST_FUNCTION(fromAssemble)
+    JSI_HOST_FUNCTION(getNodeType)
     {
-      // Get the string from the first argument
-      auto str = arguments[0].asString(runtime).utf8(runtime);
+      auto object = this->getObject();
+      return jsi::String::createFromUtf8(runtime, chia::NodeTypeToString(object->GetNodeType()));
+    }
 
-      // Import the sExp using the provided assembly code string
-      auto prog = chia::SExp::ImportFromAssemble(str);
-
-      // Wrap the sExp in a JSI object and return it
-      return JsiSExp::toValue(runtime, prog);
-    };
-
-    // ----------getTreeHash----------//
-    JSI_HOST_FUNCTION(getTreeHash)
+    JSI_HOST_FUNCTION(isFalse)
     {
-      auto newTypedArray = TypedArray<TypedArrayKind::Uint8Array>(runtime, 32);
+      auto object = this->getObject();
+      return jsi::Value(object->IsFalse());
+    }
+
+    JSI_HOST_FUNCTION(equals)
+    {
+      auto object = this->getObject();
+      auto other = JsiSExp::fromValue(runtime, arguments[0]);
+      return jsi::Value(object->EqualsTo(other));
+    }
+
+    JSI_HOST_FUNCTION(isAtom)
+    {
+      auto object = this->getObject();
+      return jsi::Value(chia::IsAtom(object));
+    }
+
+    JSI_HOST_FUNCTION(isPair)
+    {
+      auto object = this->getObject();
+      return jsi::Value(chia::IsPair(object));
+    }
+
+    JSI_HOST_FUNCTION(toBytes)
+    {
+      auto object = this->getObject();
+      auto bytes = chia::ToBytes(object);
+      auto newTypedArray = TypedArray<TypedArrayKind::Uint8Array>(runtime, bytes.size());
       auto newBuffer = newTypedArray.getBuffer(runtime);
-
-      std::memcpy(newBuffer.data(runtime), getObject()->GetTreeHash().data(), 32);
-
+      std::memcpy(newBuffer.data(runtime), bytes.data(), bytes.size());
       return newTypedArray;
-    };
+    }
 
-    // ----------getTreeHash----------//
-    JSI_HOST_FUNCTION(getSExp)
+    JSI_HOST_FUNCTION(toInt)
     {
-      return JsiClvmObjectFactory::createJsiClvmObject(runtime, getObject()->GetSExp());
-      // return JsiSExp::toValue(runtime, getObject()->GetSExp());
-    };
+      auto object = this->getObject();
+      return jsi::Value(runtime, static_cast<double>(chia::ToInt(object).ToInt()));
+    }
 
-    // ----------run----------//
-    JSI_HOST_FUNCTION(run)
+    JSI_HOST_FUNCTION(toString)
     {
-      auto clvmObjPtr = JsiClvmObjectFactory::fromJsiValue(runtime, arguments[0]);
-      // auto clvmObjPtr = JsiClvmObject<>::fromValue(runtime, arguments[0]); // You'll need to implement unwrapClvmObject.
+      auto object = this->getObject();
+      return jsi::String::createFromUtf8(runtime, chia::ToString(object));
+    }
 
-      auto [cost, result] = getObject()->Run(clvmObjPtr);
+    JSI_HOST_FUNCTION(first)
+    {
+      auto object = this->getObject();
+      return toValue(runtime, chia::First(object));
+    }
 
-      // Create a JS object to hold both the cost and the result.
+    JSI_HOST_FUNCTION(rest)
+    {
+      auto object = this->getObject();
+      return toValue(runtime, chia::Rest(object));
+    }
+
+    JSI_HOST_FUNCTION(toPair)
+    {
+      auto object = this->getObject();
+
+      auto [first, rest] = chia::Pair(object);
       auto resultObj = jsi::Object(runtime);
-
-      // Wrap the cost.
-      resultObj.setProperty(runtime, "cost", static_cast<double>(cost)); // JSI uses double for numbers.
-
-      auto clvmObj = JsiClvmObjectFactory::createJsiClvmObject(runtime, result);
-      resultObj.setProperty(runtime, "value", clvmObj);
+      resultObj.setProperty(runtime, "first", toValue(runtime, first));
+      resultObj.setProperty(runtime, "rest", toValue(runtime, rest));
 
       return resultObj;
     }
 
-    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiSExp, fromBytes), JSI_EXPORT_FUNC(JsiSExp, getTreeHash), JSI_EXPORT_FUNC(JsiSExp, getSExp), JSI_EXPORT_FUNC(JsiSExp, run), JSI_EXPORT_FUNC(JsiSExp, fromAssemble))
-  };
+    JSI_EXPORT_FUNCTIONS(
+        JSI_EXPORT_FUNC(JsiSExp, getNodeType),
+        JSI_EXPORT_FUNC(JsiSExp, isFalse),
+        JSI_EXPORT_FUNC(JsiSExp, equals),
+        JSI_EXPORT_FUNC(JsiSExp, isAtom),
+        JSI_EXPORT_FUNC(JsiSExp, isPair),
+        JSI_EXPORT_FUNC(JsiSExp, toBytes),
+        JSI_EXPORT_FUNC(JsiSExp, toInt),
+        JSI_EXPORT_FUNC(JsiSExp, toString),
+        JSI_EXPORT_FUNC(JsiSExp, first),
+        JSI_EXPORT_FUNC(JsiSExp, rest),
+        JSI_EXPORT_FUNC(JsiSExp, toPair));
 
-} // namespace RNClvm
+  protected:
+    void releaseResources() override
+    {
+      // Clear internally allocated objects
+      this->setObject(nullptr);
+    }
+  };
+}

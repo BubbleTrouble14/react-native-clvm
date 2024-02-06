@@ -10,10 +10,9 @@
 #include <jsi/jsi.h>
 #include "RNClvmLog.h"
 
-// #include "JsiSExp.h"
+#include "JsiSExp.h"
 // #include "JsiSExp1.h"
-#include "JsiClvmObjectFactory.h"
-#include "JsiClvmObject.h"
+// #include "JsiClvmObject.h"
 
 #include "sexp_prog.h"
 #include "types.h"
@@ -75,14 +74,13 @@ namespace RNClvm
     // ----------getTreeHash----------//
     JSI_HOST_FUNCTION(getSExp)
     {
-      return JsiClvmObjectFactory::createJsiClvmObject(runtime, getObject()->GetSExp());
-      // return JsiSExp::toValue(runtime, getObject()->GetSExp());
+      return JsiSExp::toValue(runtime, getObject()->GetSExp());
     };
 
     // ----------run----------//
     JSI_HOST_FUNCTION(run)
     {
-      auto clvmObjPtr = JsiClvmObjectFactory::fromJsiValue(runtime, arguments[0]);
+      auto clvmObjPtr = JsiSExp::fromValue(runtime, arguments[0]);
       // auto clvmObjPtr = JsiClvmObject<>::fromValue(runtime, arguments[0]); // You'll need to implement unwrapClvmObject.
 
       auto [cost, result] = getObject()->Run(clvmObjPtr);
@@ -93,7 +91,7 @@ namespace RNClvm
       // Wrap the cost.
       resultObj.setProperty(runtime, "cost", static_cast<double>(cost)); // JSI uses double for numbers.
 
-      auto clvmObj = JsiClvmObjectFactory::createJsiClvmObject(runtime, result);
+      auto clvmObj = JsiSExp::toValue(runtime, result);
       resultObj.setProperty(runtime, "value", clvmObj);
 
       return resultObj;

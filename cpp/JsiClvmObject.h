@@ -14,19 +14,20 @@ namespace RNClvm
 {
   namespace jsi = facebook::jsi;
 
-  template <typename T = chia::CLVMObject>
   class JsiClvmObject : public JsiClvmWrappingHostObject<chia::CLVMObjectPtr>
   {
   public:
-    JsiClvmObject(chia::CLVMObjectPtr clvmObjPtr)
-        : JsiClvmWrappingHostObject<chia::CLVMObjectPtr>(std::move(clvmObjPtr)) {}
+    JsiClvmObject(chia::CLVMObjectPtr object)
+        : JsiClvmWrappingHostObject<chia::CLVMObjectPtr>(std::move(object)) {}
 
-    static jsi::Value toValue(jsi::Runtime &runtime, std::shared_ptr<T> clvmObjPtr)
+    // Factory method to create a JSI object from a CLVMObjectPtr
+    static jsi::Value toValue(jsi::Runtime &runtime, chia::CLVMObjectPtr clvmObjPtr)
     {
-      auto wrapper = std::make_shared<JsiClvmObject>(clvmObjPtr);
+      auto wrapper = std::make_shared<JsiClvmObject>(std::move(clvmObjPtr));
       return jsi::Object::createFromHostObject(runtime, wrapper);
     }
 
+    // Method to convert a JSI value back to a CLVMObjectPtr
     static chia::CLVMObjectPtr fromValue(jsi::Runtime &runtime, const jsi::Value &value)
     {
       auto object = value.asObject(runtime);
@@ -35,43 +36,41 @@ namespace RNClvm
         throw jsi::JSError(runtime, "Expected a host object of the correct type.");
       }
       auto hostObject = object.asHostObject<JsiClvmObject>(runtime);
-      auto clvmObjPtr = hostObject->getObject();
-      if (!clvmObjPtr)
-      {
-        throw jsi::JSError(runtime, "Object is null.");
-      }
-      return clvmObjPtr;
+      return hostObject->getObject();
     }
 
-    // Get the underlying object, statically casted to the template type
-    std::shared_ptr<T> getTypedObject() const
-    {
-      return std::static_pointer_cast<T>(getObject());
-    }
-
+    // Expose the type of the underlying CLVM object
     JSI_HOST_FUNCTION(getNodeType)
     {
       auto object = this->getObject();
       return jsi::String::createFromUtf8(runtime, chia::NodeTypeToString(object->GetNodeType()));
     }
 
+    // Expose whether the underlying CLVM object is considered "false"
     JSI_HOST_FUNCTION(isFalse)
     {
-      auto typedObject = getTypedObject();
-      return jsi::Value(typedObject->IsFalse());
+      auto object = this->getObject();
+      return jsi::Value(object->IsFalse());
     }
 
+    // Expose whether the underlying CLVM object is considered "false"
     JSI_HOST_FUNCTION(equals)
     {
-      auto typedObject = getTypedObject();
-      return jsi::Value(typedObject->Eq());
+      auto object = this->getObject();
+      auto other = JsiClvmObject::fromValue(runtime, arguments[0]);
+      return jsi::Value(object->EqualsTo(other));
     }
 
-    JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiClvmObject, getNodeType), JSI_EXPORT_FUNC(JsiClvmObject, isFalse), JSI_EXPORT_FUNC(JsiClvmObject, equals));
+    JSI_EXPORT_FUNCTIONS(
+        JSI_EXPORT_FUNC(JsiClvmObject, getNodeType),
+        JSI_EXPORT_FUNC(JsiClvmObject, isFalse),
+        JSI_EXPORT_FUNC(JsiClvmObject, equals)
+    );
 
   protected:
     void releaseResources() override
     {
+      // Clear internally allocated objects
       this->setObject(nullptr);
     }
   };

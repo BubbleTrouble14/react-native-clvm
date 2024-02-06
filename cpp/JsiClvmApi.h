@@ -17,8 +17,7 @@
 #include "bech32.h"
 
 #include "JsiProgram.h"
-#include "JsiClvmObjectFactory.h"
-// #include "JsiSExp.h"
+#include "JsiSExp.h"
 
 namespace RNClvm
 {
@@ -33,6 +32,7 @@ namespace RNClvm
     JsiClvmApi(jsi::Runtime &runtime) : JsiHostObject()
     {
       installReadonlyProperty("Program", std::make_shared<RNClvm::JsiProgram>());
+      // installReadonlyProperty("SExp", std::make_shared<RNClvm::JsiSExp>());
       // installReadonlyProperty("SExp", std::make_shared<RNClvm::JsiSExp>());
     }
 
@@ -49,14 +49,16 @@ namespace RNClvm
     JSI_HOST_FUNCTION(assemble)
     {
       auto str = arguments[0].asString(runtime).utf8(runtime);
+      RNClvmLogger::logToJavascriptConsole(runtime, str);
+      RNClvmLogger::logToJavascriptConsole(runtime, "(\"this\" \"is the\" \"environement\")");
       auto f = chia::Assemble(str);
-      return JsiClvmObjectFactory::createJsiClvmObject(runtime, f);
+      return JsiSExp::toValue(runtime, f);
       // return JsiSExp::toValue(runtime, f);
     }
 
     JSI_HOST_FUNCTION(toInt)
     {
-      auto clvmObjPtr = JsiClvmObject<>::fromValue(runtime, arguments[0]); // You'll need to implement unwrapClvmObject.
+      auto clvmObjPtr = JsiSExp::fromValue(runtime, arguments[0]); // You'll need to implement unwrapClvmObject.
       return jsi::Value(runtime, static_cast<double>(chia::ToInt(clvmObjPtr).ToInt()));
     }
 
